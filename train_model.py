@@ -35,7 +35,6 @@ country_codes = set([i for i in tweet_df["code"]])
 country_dict = {}
 for idx, code in enumerate(country_codes):
     country_dict[code] = idx
-
 intermediary["country_dict"] = country_dict
     
 def convert_to_int(country_string):

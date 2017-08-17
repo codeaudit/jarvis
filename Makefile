@@ -45,6 +45,6 @@ training_tweets.csv : credentials.py crawler.py
 	source deactivate
 
 clean :
-	rm -f *.pkl *.txt
+	rm -f *.pkl *.txt *.csv
 
 .PHONY : clean train test validate deploy
