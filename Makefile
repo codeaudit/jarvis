@@ -1,3 +1,4 @@
+SHELL :=/bin/bash
 CONDA36_ENV ?= py36
 
 deploy : validate version.v intermediary.pkl deploy.py
