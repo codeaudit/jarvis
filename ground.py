@@ -24,6 +24,16 @@ class GroundClient:
 			"sourceKey": sourceKey,
 			"name": name
 		}
-		requests.post(self.url + "/nodes", headers=self.headers,
+		requests.post(self.url + "/nodes", headers=self.headers, 
 			data=json.dumps(d))
+
+	def createNodeVersion(self, nodeId):
+		d = {
+			"nodeId": nodeId
+		}
+		requests.post(self.url + "/versions/nodes", headers=self.headers, 
+			data=json.dumps(d))
+
+	def getNode(self, sourceKey):
+		return requests.get(self.url + "/nodes/" + str(sourceKey)).json()
 
