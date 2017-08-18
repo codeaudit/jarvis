@@ -16,14 +16,14 @@ class GroundClient:
 			"toNodeId": toNodeId,
 			"name": name
 		}
-		return requests.post(self.url + "/edges", headers=self.headers, 
-			data=json.dumps(d)).json()
+		requests.post(self.url + "/edges", headers=self.headers, 
+			data=json.dumps(d))
 
 	def createNode(self, sourceKey, name="null"):
 		d = {
 			"sourceKey": sourceKey,
 			"name": name
 		}
-		return requests.post(self.url + "/nodes", headers=self.headers,
-			data=json.dumps(d)).json()
+		requests.post(self.url + "/nodes", headers=self.headers,
+			data=json.dumps(d))
 
