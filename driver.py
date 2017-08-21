@@ -1,23 +1,5 @@
 from ground import GroundClient
 
-# engineerTags: {
-#       "name": {
-#           "key": "name", 
-#           "value": "an-engineer", 
-#           "type": "string"
-#       },
-#       "age": {
-#           "key": "age", 
-#           "value": 25, 
-#           "type": "integer"
-#       }, 
-#       "department": {
-#           "key": "department", 
-#           "value": "engineering", 
-#           "type": "string"
-#       }
-#   }
-
 original_schema = {
 	"id" : {
 		"key" : "id",
@@ -90,6 +72,6 @@ alternative_schema = {
 }
 
 client = GroundClient()
-# client.createNode("table_tweets")
-client.createNodeVersion(1, tags=original_schema)
-client.createNodeVersion(1, tags=alternative_schema)
+client.createNode("table_tweets")
+client.createNodeVersion("table_tweets", tags=original_schema)
+client.createNodeVersion("table_tweets", tags=alternative_schema)
