@@ -51,7 +51,7 @@ original_schema = {
 	},
 	"training" : {
 		"key" : "training",
-		"value" : "boolean whether record is used for training"
+		"value" : "boolean whether record is used for training",
 		"type" : "boolean"
 	}
 }
@@ -84,7 +84,7 @@ alternative_schema = {
 	},
 	"training" : {
 		"key" : "training",
-		"value" : "boolean whether record is used for training"
+		"value" : "boolean whether record is used for training",
 		"type" : "boolean"
 	}
 }
