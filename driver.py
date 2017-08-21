@@ -21,8 +21,8 @@ from ground import GroundClient
 original_schema = {
 	"id" : {
 		"key" : "id",
-		"value" : "id of the tweet",
-		"type" : "integer"
+		"value" : "integer id of the tweet",
+		"type" : "string"
 	},
 	"tweet" : {
 		"key" : "tweet",
@@ -52,14 +52,14 @@ original_schema = {
 	"training" : {
 		"key" : "training",
 		"value" : "boolean whether record is used for training",
-		"type" : "boolean"
+		"type" : "string"
 	}
 }
 
 alternative_schema = {
 	"id" : {
 		"key" : "id",
-		"value" : "id of the tweet",
+		"value" : "integer id of the tweet",
 		"type" : "string"
 	},
 	"tweet" : {
@@ -75,17 +75,17 @@ alternative_schema = {
 	"city" : {
 		"key" : "city",
 		"value" : "city from which the tweet originated",
-		"type" : "city"
+		"type" : "string"
 	},
 	"country" : {
 		"key" : "country",
 		"value" : "two character country code",
-		"type" : "country"
+		"type" : "string"
 	},
 	"training" : {
 		"key" : "training",
 		"value" : "boolean whether record is used for training",
-		"type" : "boolean"
+		"type" : "string"
 	}
 }
 
