@@ -18,45 +18,78 @@ from ground import GroundClient
 #       }
 #   }
 
-# original_schema = {
-# 	"id" : "integer id of the tweet",
-# 	"tweet" : "text of the tweet",
-# 	"place" : "city state from which the tweet originated",
-# 	"city" : "city from which the tweet originated",
-# 	"country" : "country from which the tweet originated",
-# 	"code": "two character country code",
-# 	"training" : "boolean whether record is used for training"
-# }
-
-# alternative_schema = {
-# 	"id" : "integer id of the tweet",
-# 	"tweet" : "text of the tweet",
-# 	"code" : "country from which the tweet originated",
-# 	"city" : "city from which the tweet originated",
-# 	"country" : "two character country code",
-# 	"training" : "boolean whether record is used for training"
-# }
-
 original_schema = {
-	"id",
-	"tweet",
-	"place",
-	"city",
-	"country",
-	"code",
-	"training"
+	"id" : {
+		"key" : "id",
+		"value" : "id of the tweet",
+		"type" : "integer"
+	},
+	"tweet" : {
+		"key" : "tweet",
+		"value" : "text of the tweet",
+		"type" : "string"
+	},
+	"place" : {
+		"key" : "place",
+		"value" : "city state from which the tweet originated",
+		"type" : "string"
+	},
+	"city" : {
+		"key" : "city",
+		"value" : "city from which the tweet originated",
+		"type" : "string"
+	},
+	"country" : {
+		"key" : "country",
+		"value" : "country from which the tweet originated",
+		"type" : "string"
+	},
+	"code": {
+		"key" : "code",
+		"value" : "two character country code",
+		"type" : "string"
+	},
+	"training" : {
+		"key" : "training",
+		"value" : "boolean whether record is used for training"
+		"type" : "boolean"
+	}
 }
 
 alternative_schema = {
-	"id",
-	"tweet",
-	"code",
-	"city",
-	"country",
-	"training" 
+	"id" : {
+		"key" : "id",
+		"value" : "id of the tweet",
+		"type" : "string"
+	},
+	"tweet" : {
+		"key" : "tweet",
+		"value" : "text of the tweet",
+		"type" : "string"
+	},
+	"code" : {
+		"key" : "code",
+		"value" : "country from which the tweet originated",
+		"type" : "string"
+	},
+	"city" : {
+		"key" : "city",
+		"value" : "city from which the tweet originated",
+		"type" : "city"
+	},
+	"country" : {
+		"key" : "country",
+		"value" : "two character country code",
+		"type" : "country"
+	},
+	"training" : {
+		"key" : "training",
+		"value" : "boolean whether record is used for training"
+		"type" : "boolean"
+	}
 }
 
 client = GroundClient()
-client.createNode("table_tweets")
-client.createNodeVersion("table_tweets", tags=original_schema)
-client.createNodeVersion("table_tweets", tags=alternative_schema)
+# client.createNode("table_tweets")
+client.createNodeVersion(1, tags=original_schema)
+client.createNodeVersion(1, tags=alternative_schema)
