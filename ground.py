@@ -43,10 +43,12 @@ class GroundClient:
 		requests.post(self.url + "/nodes", headers=self.headers, 
 			data=json.dumps(d))
 
-	def createNodeVersion(self, nodeId):
+	def createNodeVersion(self, nodeId, tags=None):
 		d = {
 			"nodeId": nodeId
 		}
+		if tags is not None:
+			d["tags"] = tags
 		requests.post(self.url + "/versions/nodes", headers=self.headers, 
 			data=json.dumps(d))
 
