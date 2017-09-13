@@ -7,33 +7,23 @@ from cleaner import clean
 from train_model import train
 from test_model import test
 
-tr_crawler = jarvis.Action(func=tr_crawl)
-training_tweets = jarvis.Artifact(loc='training_tweets.csv',
-	typ="data", parent=tr_crawler)
+training_tweets = jarvis.Action(func=tr_crawl) \
+                        .produce(loc='training_tweets.csv', typ="data")
 
-te_crawler = jarvis.Action(func=te_crawl)
-testing_tweets = jarvis.Artifact(loc='testing_tweets.csv',
-	typ="data", parent=te_crawler)
+testing_tweets = jarvis.Action(func=te_crawl) \
+                       .produce(loc='testing_tweets.csv', typ="data")
 
-tr_cleaner = jarvis.Action(func=clean, 
-	in_artifacts=[training_tweets])
-clean_training_tweets = jarvis.Artifact(loc='clean_training_tweets.pkl',
-	typ='data', parent=tr_cleaner)
+clean_training_tweets = jarvis.Action(func=clean, in_artifacts=[training_tweets]) \
+                              .produce(loc='clean_training_tweets.pkl', typ='data')
 
-te_cleaner = jarvis.Action(func=clean,
-	in_artifacts=[testing_tweets])
-clean_testing_tweets = jarvis.Artifact(loc='clean_testing_tweets.pkl',
-	typ='data', parent=te_cleaner)
+clean_testing_tweets = jarvis.Action(func=clean, in_artifacts=[testing_tweets]) \
+                             .produce(loc='clean_testing_tweets.pkl', typ='data')
 
-trainer = jarvis.Action(func=train,
-	in_artifacts=[clean_training_tweets])
-intermediary = jarvis.Artifact(loc='intermediary.pkl',
-	typ='model', parent=trainer)
+intermediary = jarvis.Action(func=train, in_artifacts=[clean_training_tweets]) \
+                     .produce(loc='intermediary.pkl', typ='model')
 
-tester = jarvis.Action(func=test,
-	in_artifacts=[intermediary, clean_testing_tweets])
-model_accuracy = jarvis.Artifact(loc='model_accuracy.txt',
-	typ='metadata', parent=tester)
+model_accuracy = jarvis.Action(func=test, in_artifacts=[intermediary, clean_testing_tweets])\
+                       .produce(loc='model_accuracy.txt', typ='metadata')
 
 model_accuracy.pull()
 
