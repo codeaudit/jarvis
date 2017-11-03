@@ -69,83 +69,110 @@ class Artifact:
         gc = __gc__
 
         gc.graph.__scriptNames__ = scriptNames
+        gc.graph.__loclist__ = loclist
+
+        gc.load(dir_name)
+
+        # Create a node for every artifact (eve1rything in jarvis.d)
+        # Create a node version for every artifact (everything in jarvis.d)
+        for loc in loclist:
+            nodeid = gc.createNode(loc)
+            nodeversionid = gc.createNodeVersion(nodeid)
+
+        # Roughly, actions map to edges
+        # Create an edge for every artifact for every action
+        # Create an edge version for every artifact for every action
+
+        for name, action in __actions__:
+            hyperSourceKey = 'hyperedge:' + name
+            hyperedgenodeid = gc.createNode(hyperSourceKey)
+            hyperedgenodeversionid = gc.createNodeVersion(hyperedgenodeid)
+            if action.in_artifacts:
+                for in_artifact in action.in_artifacts:
+                    sourceKey = in_artifact.getLocation() + '_to_' + hyperSourceKey
+                    fromNodeId = gc.getNode(in_artifact.getLocation()).nodeId
+                    edgeid = gc.createEdge(sourceKey, fromNodeId, hyperedgenodeid)
+                    nodeLatestVersions = gc.getNodeLatestVersions(in_artifact.getLocation())
+                    assert len(nodeLatestVersions) == 1 # This will fail with k-lifting, but not until then
+                    nodeLatestVersion = nodeLatestVersions[0]
+                    gc.createEdgeVersion(edgeid, nodeLatestVersion.nodeVersionId, hyperedgenodeversionid)
+            if action.out_artifacts:
+                for out_artifact in action.out_artifacts:
+                    sourceKey = hyperSourceKey + '_to_' + out_artifact.getLocation()
+                    toNodeId = gc.getNode(out_artifact.getLocation()).nodeId
+                    edgeid = gc.createEdge(sourceKey, hyperedgenodeid, toNodeId)
+                    nodeLatestVersions = gc.getNodeLatestVersions(out_artifact.getLocation())
+                    assert len(nodeLatestVersions) == 1
+                    nodeLatestVersion = nodeLatestVersions[0]
+                    gc.createEdgeVersion(edgeid, hyperedgenodeversionid, nodeLatestVersion.nodeVersionId)
+
+        if not os.path.exists(dir_name):
+            gc.commit(dir_name)
+        else:
+            gc.commit()
 
         # If the directory not exists, need to init repo
         if not os.path.exists(dir_name):
 
-            # Create a node for every artifact (everything in jarvis.d)
-            # Create a node version for every artifact (everything in jarvis.d)
-            for loc in loclist:
-                nodeid = gc.createNode(loc)
-                nodeversionid = gc.createNodeVersion(nodeid)
+            # # Create a node for every artifact (everything in jarvis.d)
+            # # Create a node version for every artifact (everything in jarvis.d)
+            # for loc in loclist:
+            #     nodeid = gc.createNode(loc)
+            #     nodeversionid = gc.createNodeVersion(nodeid)
 
-            # Roughly, actions map to edges
-            # Create an edge for every artifact for every action
-            # Create an edge version for every artifact for every action
+            # # Roughly, actions map to edges
+            # # Create an edge for every artifact for every action
+            # # Create an edge version for every artifact for every action
 
-            for name, action in __actions__:
-                hyperSourceKey = 'hyperedge:' + name
-                hyperedgenodeid = gc.createNode(hyperSourceKey)
-                hyperedgenodeversionid = gc.createNodeVersion(hyperedgenodeid)
-                if action.in_artifacts:
-                    for in_artifact in action.in_artifacts:
-                        sourceKey = in_artifact.getLocation() + '_to_' + hyperSourceKey
-                        fromNodeId = gc.getNode(in_artifact.getLocation()).nodeId
-                        edgeid = gc.createEdge(sourceKey, fromNodeId, hyperedgenodeid)
-                        nodeLatestVersions = gc.getNodeLatestVersions(in_artifact.getLocation())
-                        assert len(nodeLatestVersions) == 1 # This will fail with k-lifting, but not until then
-                        nodeLatestVersion = nodeLatestVersions[0]
-                        gc.createEdgeVersion(edgeid, nodeLatestVersion.nodeVersionId, hyperedgenodeversionid)
-                if action.out_artifacts:
-                    for out_artifact in action.out_artifacts:
-                        sourceKey = hyperSourceKey + '_to_' + out_artifact.getLocation()
-                        toNodeId = gc.getNode(out_artifact.getLocation()).nodeId
-                        edgeid = gc.createEdge(sourceKey, hyperedgenodeid, toNodeId)
-                        nodeLatestVersions = gc.getNodeLatestVersions(out_artifact.getLocation())
-                        assert len(nodeLatestVersions) == 1
-                        nodeLatestVersion = nodeLatestVersions[0]
-                        gc.createEdgeVersion(edgeid, hyperedgenodeversionid, nodeLatestVersion.nodeVersionId)
+            # for name, action in __actions__:
+            #     hyperSourceKey = 'hyperedge:' + name
+            #     hyperedgenodeid = gc.createNode(hyperSourceKey)
+            #     hyperedgenodeversionid = gc.createNodeVersion(hyperedgenodeid)
+            #     if action.in_artifacts:
+            #         for in_artifact in action.in_artifacts:
+            #             sourceKey = in_artifact.getLocation() + '_to_' + hyperSourceKey
+            #             fromNodeId = gc.getNode(in_artifact.getLocation()).nodeId
+            #             edgeid = gc.createEdge(sourceKey, fromNodeId, hyperedgenodeid)
+            #             nodeLatestVersions = gc.getNodeLatestVersions(in_artifact.getLocation())
+            #             assert len(nodeLatestVersions) == 1 # This will fail with k-lifting, but not until then
+            #             nodeLatestVersion = nodeLatestVersions[0]
+            #             gc.createEdgeVersion(edgeid, nodeLatestVersion.nodeVersionId, hyperedgenodeversionid)
+            #     if action.out_artifacts:
+            #         for out_artifact in action.out_artifacts:
+            #             sourceKey = hyperSourceKey + '_to_' + out_artifact.getLocation()
+            #             toNodeId = gc.getNode(out_artifact.getLocation()).nodeId
+            #             edgeid = gc.createEdge(sourceKey, hyperedgenodeid, toNodeId)
+            #             nodeLatestVersions = gc.getNodeLatestVersions(out_artifact.getLocation())
+            #             assert len(nodeLatestVersions) == 1
+            #             nodeLatestVersion = nodeLatestVersions[0]
+            #             gc.createEdgeVersion(edgeid, hyperedgenodeversionid, nodeLatestVersion.nodeVersionId)
 
-            gc.commit(dir_name)
+            # gc.commit(dir_name)
+            pass
+
+        else:
+
+            # gc.load(dir_name)
 
 
-        #     os.makedirs(dir_name)
-        #     # Move new files to the artifacts repo
-        #     for loc in loclist:
-        #         os.rename(loc, dir_name + "/" + loc)
-        #     for script in scriptNames:
-        #         copyfile(script, dir_name + "/" + script)
-        #     os.chdir(dir_name)
-        #     repo = git.Repo.init(os.getcwd())
-        #     repo.index.add(loclist + scriptNames)
-        #     repo.index.commit("initial commit")
-        #     tree = repo.tree()
-        #     with open('.jarvis', 'w') as f:
-        #         for obj in tree:
-        #             commithash = __run_proc__("git log " + obj.path).replace('\n', ' ').split()[1]
-        #             if obj.path != '.jarvis':
-        #                 f.write(obj.path + " " + commithash + "\n")
-        #     repo.index.add(['.jarvis'])
-        #     repo.index.commit('.jarvis commit')
-        #     os.chdir('../')
-        # else:
-        #     for loc in loclist:
-        #         os.rename(loc, dir_name + "/" + loc)
-        #     for script in scriptNames:
-        #         copyfile(script, dir_name + "/" + script)
-        #     os.chdir(dir_name)
-        #     repo = git.Repo(os.getcwd())
-        #     repo.index.add(loclist + scriptNames)
-        #     repo.index.commit("incremental commit")
-        #     tree = repo.tree()
-        #     with open('.jarvis', 'w') as f:
-        #         for obj in tree:
-        #             commithash = __run_proc__("git log " + obj.path).replace('\n', ' ').split()[1]
-        #             if obj.path != '.jarvis':
-        #                 f.write(obj.path + " " + commithash + "\n")
-        #     repo.index.add(['.jarvis'])
-        #     repo.index.commit('.jarvis commit')
-        #     os.chdir('../')
+            # for loc in loclist:
+            #     os.rename(loc, dir_name + "/" + loc)
+            # for script in scriptNames:
+            #     copyfile(script, dir_name + "/" + script)
+            # os.chdir(dir_name)
+            # repo = git.Repo(os.getcwd())
+            # repo.index.add(loclist + scriptNames)
+            # repo.index.commit("incremental commit")
+            # tree = repo.tree()
+            # with open('.jarvis', 'w') as f:
+            #     for obj in tree:
+            #         commithash = __run_proc__("git log " + obj.path).replace('\n', ' ').split()[1]
+            #         if obj.path != '.jarvis':
+            #             f.write(obj.path + " " + commithash + "\n")
+            # repo.index.add(['.jarvis'])
+            # repo.index.commit('.jarvis commit')
+            # os.chdir('../')
+            pass
             
     def plot(self, rankdir=None):
         # WARNING: can't plot before pulling.

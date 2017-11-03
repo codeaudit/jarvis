@@ -10,7 +10,7 @@ from shutil import copyfile
 
 class Node:
 
-    def __init__(self, sourceKey, nodeId):
+    def __init__(self, sourceKey=None, nodeId=None):
         self.sourceKey = sourceKey
         self.nodeId = nodeId
     
@@ -24,7 +24,7 @@ class Node:
 
 class NodeVersion:
 
-    def __init__(self, node):
+    def __init__(self, node=Node()):
         self.sourceKey = node.sourceKey
         self.nodeId = node.nodeId
         self.tags = None
@@ -45,7 +45,7 @@ class NodeVersion:
 
 class Edge:
 
-    def __init__(self, sourceKey, fromNodeId, toNodeId):
+    def __init__(self, sourceKey=None, fromNodeId=None, toNodeId=None):
         self.sourceKey = sourceKey
         self.fromNodeId = fromNodeId
         self.toNodeId = toNodeId
@@ -63,7 +63,7 @@ class Edge:
 
 class EdgeVersion:
 
-    def __init__(self, edge, fromNodeVersionStartId, toNodeVersionStartId):
+    def __init__(self, edge=Edge(), fromNodeVersionStartId=None, toNodeVersionStartId=None):
         self.sourceKey = edge.sourceKey
         self.fromNodeId = edge.fromNodeId
         self.toNodeId = edge.toNodeId
@@ -94,7 +94,7 @@ class Graph:
         self.edgeVersions = {}
         self.ids = set([])
 
-        self.__loclist__ = set([])
+        self.__loclist__ = None
         self.__scriptNames__ = None
 
     def gen_id(self):
@@ -213,6 +213,13 @@ class GroundAPI:
     def commit(self, directory=None):
         return
 
+    def load(self, directory):
+        """
+        This method is implemented by GitImplementation
+        It is used to load the Ground Graph to memory (from filesystem)
+        """
+        return
+
 
 class GitImplementation(GroundAPI):
 
@@ -266,17 +273,15 @@ class GitImplementation(GroundAPI):
 
     ### NODES ###
     def createNode(self, sourceKey, name="null"):
-        if sourceKey in self.graph.nodes:
-            raise KeyError("{} is already defined defined as a node".format(sourceKey))
-        nodeid = self.graph.gen_id()
-        node = Node(sourceKey, nodeid)
+        if sourceKey not in self.graph.nodes:
+            nodeid = self.graph.gen_id()
+            node = Node(sourceKey, nodeid)
 
 
-        self.graph.nodes[sourceKey] = node
-        self.graph.nodes[nodeid] = node
-        
-        if sourceKey[0:10] != 'hyperedge:':
-            self.graph.__loclist__ |= {sourceKey,}
+            self.graph.nodes[sourceKey] = node
+            self.graph.nodes[nodeid] = node
+        else:
+            nodeid = self.graph.nodes[sourceKey].nodeId
 
         return nodeid
 
@@ -287,6 +292,13 @@ class GitImplementation(GroundAPI):
             nodeVersion.tags = tags
         if parentIds:
             nodeVersion.parentIds = parentIds
+        else:
+            # ALERT: THIS MAY NOT GENERALIZE TO K-LIFTING
+            nlvs = self.getNodeLatestVersions(self.graph.nodes[nodeId].sourceKey)
+            if nlvs:
+                nodeVersion.parentIds = nlvs
+            else:
+                nodeVersion.parentIds = None
 
         nodeversionid = self.graph.gen_id()
         nodeVersion.nodeVersionId = nodeversionid
@@ -384,6 +396,56 @@ class GitImplementation(GroundAPI):
         else:
             pass
 
+    def to_class(self, obj):
+        if obj['class'] == 'Node':
+            n = Node()
+            n.sourceKey = obj['sourceKey']
+            n.nodeId = obj['nodeId']
+
+            self.graph.nodes[n.sourceKey] = n
+            self.graph.nodes[n.nodeId] = n
+            self.graph.ids |= {n.nodeId, }
+        
+        elif obj['class'] == 'NodeVersion':
+            nv = NodeVersion()
+            nv.sourceKey = obj['sourceKey']
+            nv.nodeId = obj['nodeId']
+            nv.tags = obj['tags']
+            nv.parentIds = obj['parentIds']
+            nv.nodeVersionId = obj['nodeVersionId']
+
+            if nv.sourceKey in self.graph.nodeVersions:
+                self.graph.nodeVersions[nv.sourceKey].append(nv)
+            else:
+                self.graph.nodeVersions[nv.sourceKey] = [nv, ]
+            self.graph.nodeVersions[nv.nodeVersionId] = nv
+            self.graph.ids |= {nv.nodeId, }
+        
+        elif obj['class'] == 'Edge':
+            e = Edge()
+            e.sourceKey = obj['sourceKey']
+            e.fromNodeId = obj['fromNodeId']
+            e.toNodeId =  obj['toNodeId']
+            e.edgeId = obj['edgeId']
+
+
+
+
+
+    def load(self, directory):
+        if not os.path.exists(directory) or self.graph.ids:
+            return
+        os.chdir(directory)
+        count = 0
+        for _, _, filenames in os.walk('.'):
+            for filename in filenames:
+                filename = filename.split('.')
+                if filename[-1] == 'json':
+                    filename = '.'.join(filename)
+                    with open(filename, 'r') as f:
+                        self.to_class(json.loads(f.read()))
+        
+        os.chdir('../')
 
 class GroundImplementation(GroundAPI):
 
